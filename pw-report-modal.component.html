@@ -1,0 +1,232 @@
+<div class="load-modal-header">
+  <h4 class="modal-title">Gerar Relatório</h4>
+</div>
+
+<div class="modal-body load-settings-modal">
+  <div class="report-modal-container">
+    <div style="line-height: 350px;" *ngIf="loadingResults">
+      <pw-loading class="small" *ngIf="loadingResults"></pw-loading>
+    </div>
+
+    <ng-container *ngIf="!loadingResults">
+      <ng-container *ngIf="needToGenerate && !generatingResults">
+        <div class="report-modal-info">
+          <div>
+            Ainda não existem resultados gerados para esse projeto, deseja gerar resultados? <a (click)="generateResults()">Gerar resultados.</a>
+          </div>
+
+        </div>
+
+      </ng-container>
+      <ng-container *ngIf="!chartsDone && generatingResults">
+        <div class="report-modal-info">
+          <div>
+            <pw-loading class="small" *ngIf="generatingResults"></pw-loading>
+            Aguarde um momento, os resultados estão sendo gerados.
+          </div>
+
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!generatingResults && noResults">
+        <div class="report-modal-info">
+          <div>
+            Não existem resultados disponíveis para esse projeto. Existem carregamentos nas colunas?
+          </div>
+
+        </div>
+
+      </ng-container>
+      <ng-container *ngIf="!needToGenerate && !noResults && !generatingResults" >
+        <pw-carousel [width]="600" [height]="470" [navigate]="false">
+          <div class="report-modal-info">
+            <div *ngIf="!chartsDone">
+              <pw-loading class="small" *ngIf="!chartsDone"></pw-loading>
+              Aguarde um momento, o relatório está sendo gerado.
+            </div>
+            <div *ngIf="chartsDone">
+              O relatório está pronto para ser baixado.
+            </div>
+          </div>
+          <div>
+            <pw-chart [chartOptions]="{
+                  project: this.project,
+                  toggle: false,
+                  wellStrings: false,
+                  cement: false,
+                  data: dataMap['geopressures'],
+                  limit: true,
+                  label: {y: 'Cota (m)', x: 'Gradiente de Pressão (lb/pé)'},
+                  width: 622,
+                  height: 350,
+                  id: 'geopressures',
+                  canZoom: true}" (notify)="parentListen($event)">
+            </pw-chart>
+          </div>
+          <div>
+            <pw-chart [chartOptions]="{
+                  project: project,
+                  toggle:false,
+                  wellStrings: false,
+                  cement: false,
+                  data: dataMap['temperatures'],
+                  limit:true,
+                  label:{y:'Cota (m)', x:'Temperatura (°c)'},
+                  width: 622,
+                  height: 350,
+                  id: 'temperatures',
+                  canZoom: true,
+                  showLegend: false
+                  }" (notify)="parentListen($event)">
+            </pw-chart>
+          </div>
+          <ng-container *ngFor="let wellString of wellStrings">
+            <div>
+              <pw-chart [chartOptions]="{
+                          project: project,
+                          wellString: wellString,
+                          toggle: false,
+                          cement: true,
+                          wellStrings: true,
+                          width: 622,
+                          height: 350,
+                          data: safetyChartMapValues[wellString.sequence]['axialSafetyFactor'],
+                          id: wellString.sequence + '-axialSafetyFactor',
+                          safetyPoint: safetyCasingPoints['tensionMinFs'],
+                          limit: true,
+                          hover: false
+                          }" (notify)="parentListen($event)">
+
+              </pw-chart>
+            </div>
+
+            <div>
+              <pw-chart [chartOptions]="{
+                          project: project,
+                          wellString: wellString,
+                          toggle: false,
+                          cement: true,
+                          wellStrings: true,
+                          width: 622,
+                          height: 350,
+                          data: safetyChartMapValues[wellString.sequence]['burstSafetyFactor'],
+                          id: wellString.sequence + '-burstSafetyFactor',
+                          safetyPoint: safetyCasingPoints['internalPressureMinFs'],
+                          limit: true,
+                          hover: false
+                          }" (notify)="parentListen($event)">
+
+              </pw-chart>
+            </div>
+
+            <div>
+              <pw-chart [chartOptions]="{
+                          project: project,
+                          wellString: wellString,
+                          toggle: false,
+                          cement: true,
+                          wellStrings: true,
+                          width: 622,
+                          height: 350,
+                          data: safetyChartMapValues[wellString.sequence]['collapseSafetyFactor'],
+                          id: wellString.sequence + '-collapseSafetyFactor',
+                          safetyPoint: safetyCasingPoints['collapseMinFs'],
+                          limit: true,
+                          hover: false
+                          }" (notify)="parentListen($event)">
+
+              </pw-chart>
+            </div>
+
+            <div>
+              <pw-chart [chartOptions]="{
+                          project: project,
+                          wellString: wellString,
+                          toggle: false,
+                          cement: true,
+                          wellStrings: true,
+                          width: 622,
+                          height: 350,
+                          data: safetyChartMapValues[wellString.sequence]['vonMisesSafetyFactor'],
+                          id: wellString.sequence + '-vonMisesSafetyFactor',
+                          safetyPoint: safetyCasingPoints['triaxialMinFs'],
+                          limit: true,
+                          hover: false
+                          }" (notify)="parentListen($event)">
+
+              </pw-chart>
+            </div>
+
+            <ng-container *ngFor="let section of wellString.stringSections">
+
+              <div>
+                <pw-chart [chartOptions]="{
+                          toggle:false,
+                          width: 622,
+                          height: 350,
+                          data:wellEnvelopeMapValues[wellString.sequence][section.sequence]['vM'],
+                          id: wellString.sequence + '-' + section.sequence + '-vM',
+                          limit:true,
+                          hover: false,
+                          label:{y:'Força Axial (lbf)', x:'Diferencial de Pressão (psi)'}
+                          }" (notify)="parentListen($event)">
+
+                </pw-chart>
+              </div>
+              <div>
+                <pw-chart [chartOptions]="{
+                          toggle:false,
+                          width: 622,
+                          height: 350,
+                          data:wellEnvelopeMapValues[wellString.sequence][section.sequence]['analytic'],
+                          id: wellString.sequence + '-' + section.sequence + '-analytic',
+                          limit:true,
+                          hover: false
+                          }" (notify)="parentListen($event)">
+
+                </pw-chart>
+              </div>
+              <div>
+                <pw-chart [chartOptions]="{
+                          toggle:false,
+                          width: 622,
+                          height: 350,
+                          data:wellEnvelopeMapValues[wellString.sequence][section.sequence]['ks'],
+                          id: wellString.sequence + '-' + section.sequence + '-ks',
+                          limit:true,
+                          hover: false
+                          }" (notify)="parentListen($event)">
+
+                </pw-chart>
+              </div>
+              <div>
+                <pw-chart [chartOptions]="{
+                          toggle:false,
+                          width: 622,
+                          height: 350,
+                          data:wellEnvelopeMapValues[wellString.sequence][section.sequence]['kt'],
+                          id: wellString.sequence + '-' + section.sequence + '-kt',
+                          limit:true,
+                          hover: false
+                          }" (notify)="parentListen($event)">
+
+                </pw-chart>
+              </div>
+            </ng-container>
+          </ng-container>
+
+        </pw-carousel>
+      </ng-container>
+
+    </ng-container>
+
+
+  </div>
+</div>
+
+<div class="load-modal-footer">
+  <div>
+    <button class="btn" (click)="downloadReport()" [disabled]="!chartsDone" >Baixar Relatório</button>
+    <button class="btn" (click)="close()" data-dismiss="modal">Fechar</button>
+  </div>
+</div>

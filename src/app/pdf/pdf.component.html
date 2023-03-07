@@ -1,0 +1,26 @@
+<div class="btn-group gap-2 m-3" role="group">
+  <button type="button" class="btn btn-primary" (click)="downloadPdf()">
+    Download PDF
+  </button>
+  <button type="button" class="btn btn-primary" (click)="pdfMe()">
+    Download PDF (PDFME)
+  </button>
+  <button type="button" class="btn btn-primary" (click)="viewPdf()">
+    View PDF
+  </button>
+</div>
+
+<form>
+  <div class="mb-3">
+    <label for="logo" class="form-label">img logo</label>
+    <input
+      id="logo"
+      type="file"
+      class="form-control"
+      (change)="onLogoChange($event)"
+    />
+  </div>
+</form>
+
+<div #viewer class="viewer"></div>
+<div id="iframeContainer"></div>

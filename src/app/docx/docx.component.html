@@ -1,0 +1,23 @@
+<form>
+  <div class="mb-3">
+    <label for="template" class="form-label">.docx template</label>
+    <input
+      id="template"
+      type="file"
+      class="form-control"
+      (change)="onTemplateChange($event)"
+    />
+  </div>
+  <div class="mb-3">
+    <label for="logo" class="form-label">img logo</label>
+    <input
+      id="logo"
+      type="file"
+      class="form-control"
+      (change)="onLogoChange($event)"
+    />
+  </div>
+  <button type="submit" class="btn btn-primary" (click)="onSubmit()">
+    Download DOCX
+  </button>
+</form>
