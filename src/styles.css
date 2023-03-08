@@ -6,3 +6,11 @@
 .nav-item {
   background-color: var(--bs-dark-bg-subtle);
 }
+
+.docx-wrapper {
+  padding: 0 !important;
+}
+
+.docx {
+  margin: 0 !important;
+}

@@ -4,18 +4,18 @@ declare const docxTemplates: { createReport: (opt: UserOptions) => BlobPart };
 
 const { createReport } = docxTemplates;
 
-export async function downloadDocx(
-  file: File,
-  filename: string,
-  data: () => unknown
-) {
+export async function getDocxReport(file: File, data: () => unknown) {
   console.log('Template chosen');
 
   // Read template
   const template = await readFileIntoArrayBuffer(file);
 
-  if (template === null) return;
-  if (typeof template === 'string') return;
+  if (template === null)
+    throw new Error('Erro ao gerar o report docx: template nulo');
+  if (typeof template === 'string')
+    throw new Error(
+      'Erro ao gerar o report docx: template deve ser uma string'
+    );
 
   // Create report
   console.log('Creating report (can take some time) ...');
@@ -24,7 +24,15 @@ export async function downloadDocx(
     template: template as Buffer,
     data,
   });
+  return report;
+}
 
+export async function downloadDocx(
+  file: File,
+  filename: string,
+  data: () => unknown
+) {
+  const report = await getDocxReport(file, data);
   // Save report
   saveDataToFile(
     report,
@@ -46,7 +54,11 @@ const readFileIntoArrayBuffer = async (fd: File) =>
     reader.readAsArrayBuffer(fd);
   });
 
-const saveDataToFile = (data: BlobPart, fileName: string, mimeType: string) => {
+export const saveDataToFile = (
+  data: BlobPart,
+  fileName: string,
+  mimeType: string
+) => {
   const blob = new Blob([data], { type: mimeType });
   const url = window.URL.createObjectURL(blob);
   downloadURL(url, fileName);

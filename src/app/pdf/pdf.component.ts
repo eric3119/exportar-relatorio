@@ -1,87 +1,69 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { generate } from '@pdfme/generator';
-import { generatePDF } from './pdfmake/generate-pdf';
+import * as docxPreview from 'docx-preview';
+import { RelatorioService } from '../relatorio.service';
 import { getImageBase64 } from '../utils';
-import { getDocDef } from './pdfmake/template';
 import { template } from './pdfme/relatorio-template';
-import WebViewer, { WebViewerInstance } from '@pdftron/webviewer';
+
+declare const html2pdf: any;
 
 @Component({
   selector: 'app-pdf',
   templateUrl: './pdf.component.html',
 })
-export class PDFComponent implements AfterViewInit {
+export class PDFComponent {
   @ViewChild('viewer') viewer!: ElementRef;
-  wvInstance!: WebViewerInstance;
   private logo?: File;
 
-  ngAfterViewInit(): void {
-    WebViewer(
-      {
-        path: '../lib',
-        initialDoc: '../files/webviewer-demo-annotated.pdf',
-      },
-      this.viewer.nativeElement
-    ).then((instance) => {
-      this.wvInstance = instance;
-
-      // this.coreControlsEvent.emit(instance.UI.LayoutMode.Single);
-
-      const { documentViewer, Annotations, annotationManager } = instance.Core;
-
-      instance.UI.openElements(['notesPanel']);
-
-      documentViewer.addEventListener('annotationsLoaded', () => {
-        console.log('annotations loaded');
-      });
-
-      documentViewer.addEventListener('documentLoaded', () => {
-        // this.documentLoaded$.next();
-        const rectangleAnnot = new Annotations.RectangleAnnotation({
-          PageNumber: 1,
-          // values are in page coordinates with (0, 0) in the top left
-          X: 100,
-          Y: 150,
-          Width: 200,
-          Height: 50,
-          Author: annotationManager.getCurrentUser(),
-        });
-        annotationManager.addAnnotation(rectangleAnnot);
-        annotationManager.redrawAnnotation(rectangleAnnot);
-      });
-    });
-  }
+  constructor(private relatorioService: RelatorioService) {}
 
   downloadPdf() {
-    if (!this.logo) {
-      console.error('Logo não encontrado');
-      return;
-    }
-    getImageBase64(this.logo, (image) => {
-      generatePDF(getDocDef(image)).download('relatorio.pdf');
+    const docxWrapper = document.querySelector('#viewer .docx-wrapper');
+    if (!docxWrapper) return;
+    html2pdf(docxWrapper, {
+      jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' },
+      margin: 0,
+      html2canvas: {
+        useCORS: true,
+      },
     });
+    // if (!this.logo) {
+    //   console.error('Logo não encontrado');
+    //   return;
+    // }
+    // getImageBase64(this.logo, (image) => {
+    //   generatePDF(getDocDef(image)).download('relatorio.pdf');
+    // });
   }
 
   viewPdf() {
-    if (!this.logo) {
-      console.error('Logo não encontrado');
-      return;
-    }
-    getImageBase64(this.logo, (image) => {
-      generatePDF(getDocDef(image)).getDataUrl((dataUrl) => {
-        const targetElement = document.querySelector('#iframeContainer');
-        if (!targetElement) {
-          console.error('iframeContainer não encontrado');
-          return;
-        }
+    const viewer = document.getElementById('viewer');
+    if (!viewer) return;
 
-        const iframe = document.createElement('iframe');
-        iframe.src = dataUrl;
-        iframe.style.width = '100%';
-        iframe.style.height = '80vh';
-        targetElement.appendChild(iframe);
-      });
-    });
+    docxPreview
+      .renderAsync(this.relatorioService.relatorioDocxBlob, viewer, viewer, {
+        ignoreLastRenderedPageBreak: true,
+      })
+      .then((x) => console.log('docx: finished'));
+    // if (!this.logo) {
+    //   console.error('Logo não encontrado');
+    //   return;
+    // }
+    // getImageBase64(this.logo, (image) => {
+    //   generatePDF(getDocDef(image)).getDataUrl((dataUrl) => {
+    //     const targetElement = document.querySelector('#iframeContainer');
+    //     if (!targetElement) {
+    //       console.error('iframeContainer não encontrado');
+    //       return;
+    //     }
+
+    //     const iframe = document.createElement('iframe');
+    //     iframe.src = dataUrl;
+    //     iframe.style.width = '100%';
+    //     iframe.style.height = '80vh';
+    //     targetElement.appendChild(iframe);
+    //   });
+    // });
   }
 
   pdfMe() {

@@ -3,3 +3,17 @@
     Download XLSX
   </button>
 </div>
+
+<form>
+  <div class="mb-3">
+    <label for="logo" class="form-label">img logo</label>
+    <input
+      id="logo"
+      type="file"
+      class="form-control"
+      (change)="onLogoChange($event)"
+    />
+  </div>
+</form>
+
+<div #viewer id="viewer" style="background-color: white; color: black;"></div>

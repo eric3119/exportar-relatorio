@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { downloadDocx } from './generate-docx';
+import { RelatorioService } from '../relatorio.service';
+import { downloadDocx, getDocxReport } from './generate-docx';
 
 @Component({
   selector: 'app-docx',
@@ -8,6 +9,8 @@ import { downloadDocx } from './generate-docx';
 export class DOCXComponent {
   private template?: File;
   private logo?: File;
+
+  constructor(private relatorioService: RelatorioService) {}
 
   onTemplateChange({ target }: Event) {
     if (!(target instanceof HTMLInputElement))
@@ -31,18 +34,26 @@ export class DOCXComponent {
 
     const fileReader = new FileReader();
 
-    fileReader.addEventListener('load', (evt) => {
+    fileReader.addEventListener('load', async (evt) => {
       if (!this.template) return;
       if (!evt.target?.result) return;
       if (typeof evt.target.result !== 'string') return;
 
       const image = evt.target.result.replace('data:', '').replace(/^.+,/, '');
-      downloadDocx(this.template, 'relatorio', () => {
+      const report = await getDocxReport(this.template, () => {
         return {
-          teste: 'teste2',
+          texto: 'texto teste',
           logo: { width: 4, height: 1, data: image, extension: '.png' },
         };
       });
+
+      this.relatorioService.relatorioDocxBlob = new Blob([report]);
+      // downloadDocx(this.template, 'relatorio', () => {
+      //   return {
+      //     teste: 'teste2',
+      //     logo: { width: 4, height: 1, data: image, extension: '.png' },
+      //   };
+      // });
     });
 
     fileReader.readAsDataURL(this.logo);

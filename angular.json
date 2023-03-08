@@ -31,7 +31,10 @@
               "src/styles.css"
             ],
             "scripts": [
-              "src/scripts/docx-templates.js"
+              "src/scripts/docx-templates.js",
+              "./node_modules/jspdf/dist/jspdf.min.js",
+              "./node_modules/html2pdf.js/dist/html2pdf.js",
+              "./node_modules/exceljs/dist/exceljs.min.js"
             ]
           },
           "configurations": {
