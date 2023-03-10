@@ -28,6 +28,30 @@ export class DOCXComponent {
     this.logo = target.files[0];
   }
 
+  downloadDocx() {
+    if (!this.template) return;
+    if (!this.logo) return;
+
+    const fileReader = new FileReader();
+
+    fileReader.addEventListener('load', async (evt) => {
+      if (!this.template) return;
+      if (!evt.target?.result) return;
+      if (typeof evt.target.result !== 'string') return;
+
+      const image = evt.target.result.replace('data:', '').replace(/^.+,/, '');
+
+      downloadDocx(this.template, 'relatorio', () => {
+        return {
+          texto: 'texto inserido',
+          logo: { width: 4, height: 1, data: image, extension: '.png' },
+        };
+      });
+    });
+
+    fileReader.readAsDataURL(this.logo);
+  }
+
   async onSubmit() {
     if (!this.template) return;
     if (!this.logo) return;
@@ -48,12 +72,6 @@ export class DOCXComponent {
       });
 
       this.relatorioService.relatorioDocxBlob = new Blob([report]);
-      // downloadDocx(this.template, 'relatorio', () => {
-      //   return {
-      //     teste: 'teste2',
-      //     logo: { width: 4, height: 1, data: image, extension: '.png' },
-      //   };
-      // });
     });
 
     fileReader.readAsDataURL(this.logo);

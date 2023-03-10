@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import * as ExcelJS from 'exceljs';
 import * as XLSX from 'xlsx';
+import { saveDataToFile } from '../docx/generate-docx';
 import { getImageBase64 } from '../utils';
 
 declare const html2pdf: any;
@@ -17,48 +18,17 @@ export class XLSXComponent {
     if (!this.logo) return;
 
     getImageBase64(this.logo, async (image) => {
-      const rows = [
-        {
-          name: 'name',
-          birthday: '1999-01-01',
-        },
-        {
-          name: 'name',
-          birthday: '1999-01-01',
-        },
-        {
-          name: 'name',
-          birthday: '1999-01-01',
-        },
-      ];
+      const buffer = await this.generateXlsx(image);
+      saveDataToFile(buffer, 'teste.xlsx', 'application/vnd.ms-excel');
+    });
+  }
 
-      /* generate worksheet and workbook */
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Dates');
+  downloadXslxConvertido() {
+    if (!this.logo) return;
 
-      worksheet.columns = [
-        { header: 'Name', key: 'name', width: 10 },
-        { header: 'Birthday', key: 'birthday', width: 10 },
-      ];
-      worksheet.addRows(rows);
-
-      const imageId = workbook.addImage({
-        base64: image,
-        extension: 'png',
-      });
-
-      worksheet.addImage(imageId, 'B6:D7');
-
-      const buffer = await workbook.xlsx.writeBuffer();
-      // XLSX
-      // saveDataToFile(buffer, 'teste.xlsx', 'application/vnd.ms-excel');
-
-      // PDF
-      const wb = XLSX.read(buffer);
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      this.renderXlsxAndDownload(ws);
-
-      // saveDataToFile(buffer, 'teste.xlsx', 'application/vnd.ms-excel');
+    getImageBase64(this.logo, async (image) => {
+      const buffer = await this.generateXlsx(image);
+      this.renderXlsxAndDownload(buffer);
     });
   }
 
@@ -70,17 +40,55 @@ export class XLSXComponent {
     this.logo = target.files[0];
   }
 
-  private renderXlsxAndDownload(ws: XLSX.WorkSheet) {
+  private renderXlsxAndDownload(buffer: ExcelJS.Buffer) {
     if (!this.viewer.nativeElement) return;
+    const wb = XLSX.read(buffer);
+    const ws = wb.Sheets[wb.SheetNames[0]];
 
     this.viewer.nativeElement.innerHTML = XLSX.utils.sheet_to_html(ws);
 
     html2pdf(this.viewer.nativeElement, {
       jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' },
-      margin: .5,
+      margin: 0.5,
       html2canvas: {
         useCORS: true,
       },
     });
+  }
+
+  private async generateXlsx(image: string): Promise<ExcelJS.Buffer> {
+    const rows = [
+      {
+        name: 'name',
+        birthday: '1999-01-01',
+      },
+      {
+        name: 'name',
+        birthday: '1999-01-01',
+      },
+      {
+        name: 'name',
+        birthday: '1999-01-01',
+      },
+    ];
+
+    /* generate worksheet and workbook */
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Dates');
+
+    worksheet.columns = [
+      { header: 'Name', key: 'name', width: 10 },
+      { header: 'Birthday', key: 'birthday', width: 10 },
+    ];
+    worksheet.addRows(rows);
+
+    const imageId = workbook.addImage({
+      base64: image,
+      extension: 'png',
+    });
+
+    worksheet.addImage(imageId, 'B6:D7');
+
+    return await workbook.xlsx.writeBuffer();
   }
 }
