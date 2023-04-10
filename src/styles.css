@@ -9,6 +9,7 @@
 
 .docx-wrapper {
   padding: 0 !important;
+  align-items: start !important;
 }
 
 .docx {

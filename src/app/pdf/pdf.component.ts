@@ -5,7 +5,8 @@ import { RelatorioService } from '../relatorio.service';
 import { getImageBase64 } from '../utils';
 import { template } from './pdfme/relatorio-template';
 
-declare const html2pdf: any;
+// declare const html2pdf: any;
+import { jsPDF } from 'jspdf';
 
 @Component({
   selector: 'app-pdf',
@@ -18,15 +19,38 @@ export class PDFComponent {
   constructor(private relatorioService: RelatorioService) {}
 
   downloadPdf() {
-    const docxWrapper = document.querySelector('#viewer .docx-wrapper');
+    const docxWrapper = <HTMLElement>(
+      document.querySelector('#viewer .docx-wrapper')
+    );
     if (!docxWrapper) return;
-    html2pdf(docxWrapper, {
-      jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' },
-      margin: 0,
+    const pdf = new jsPDF({
+      orientation: 'p',
+      unit: 'pt',
+      format: 'a4',
+    });
+    pdf.html(docxWrapper, {
       html2canvas: {
         useCORS: true,
+        width: 794,
+        windowWidth: 794,
+        scale: 0.75,
+      },
+      width: 794,
+      windowWidth: 794,
+      x: 0,
+      y: 0,
+      callback: function () {
+        // Salve o PDF
+        pdf.save('nome-do-arquivo.pdf');
       },
     });
+    // html2pdf(docxWrapper, {
+    //   jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' },
+    //   margin: 0,
+    //   html2canvas: {
+    //     useCORS: true,
+    //   },
+    // });
     // if (!this.logo) {
     //   console.error('Logo não encontrado');
     //   return;

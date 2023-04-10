@@ -36,6 +36,18 @@
         XLSX
       </button>
     </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        data-bs-toggle="tab"
+        data-bs-target="#jspdf-tab-pane"
+        type="button"
+        role="tab"
+        aria-selected="false"
+      >
+        JSPDF
+      </button>
+    </li>
   </ul>
   <div class="tab-content" id="myTabContent">
     <div
@@ -64,6 +76,15 @@
       tabindex="0"
     >
       <app-xlsx></app-xlsx>
+    </div>
+    <div
+      class="tab-pane fade"
+      id="jspdf-tab-pane"
+      role="tabpanel"
+      aria-labelledby="profile-tab"
+      tabindex="0"
+    >
+      <app-jspdf></app-jspdf>
     </div>
   </div>
 </div>

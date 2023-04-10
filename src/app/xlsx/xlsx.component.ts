@@ -1,10 +1,11 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import * as ExcelJS from 'exceljs';
+import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
 import { saveDataToFile } from '../docx/generate-docx';
 import { getImageBase64 } from '../utils';
 
-declare const html2pdf: any;
+// declare const html2pdf: any;
 
 @Component({
   selector: 'app-xlsx',
@@ -46,14 +47,36 @@ export class XLSXComponent {
     const ws = wb.Sheets[wb.SheetNames[0]];
 
     this.viewer.nativeElement.innerHTML = XLSX.utils.sheet_to_html(ws);
-
-    html2pdf(this.viewer.nativeElement, {
-      jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' },
-      margin: 0.5,
+    if (!this.viewer.nativeElement) return;
+    const pdf = new jsPDF({
+      orientation: 'p',
+      unit: 'pt',
+      format: 'a4',
+    });
+    pdf.html(this.viewer.nativeElement, {
       html2canvas: {
         useCORS: true,
+        width: 794,
+        windowWidth: 794,
+        scale: 0.75,
+      },
+      width: 794,
+      windowWidth: 794,
+      x: 0,
+      y: 0,
+      callback: function () {
+        // Salve o PDF
+        pdf.save('nome-do-arquivo.pdf');
       },
     });
+
+    // html2pdf(this.viewer.nativeElement, {
+    //   jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' },
+    //   margin: 0.5,
+    //   html2canvas: {
+    //     useCORS: true,
+    //   },
+    // });
   }
 
   private async generateXlsx(image: string): Promise<ExcelJS.Buffer> {
