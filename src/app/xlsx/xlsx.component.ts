@@ -5,8 +5,6 @@ import * as XLSX from 'xlsx';
 import { saveDataToFile } from '../docx/generate-docx';
 import { getImageBase64 } from '../utils';
 
-// declare const html2pdf: any;
-
 @Component({
   selector: 'app-xlsx',
   templateUrl: './xlsx.component.html',
@@ -69,14 +67,6 @@ export class XLSXComponent {
         pdf.save('nome-do-arquivo.pdf');
       },
     });
-
-    // html2pdf(this.viewer.nativeElement, {
-    //   jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' },
-    //   margin: 0.5,
-    //   html2canvas: {
-    //     useCORS: true,
-    //   },
-    // });
   }
 
   private async generateXlsx(image: string): Promise<ExcelJS.Buffer> {

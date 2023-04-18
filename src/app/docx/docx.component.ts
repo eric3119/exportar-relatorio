@@ -44,7 +44,7 @@ export class DOCXComponent {
       downloadDocx(this.template, 'relatorio', () => {
         return {
           texto: 'texto inserido',
-          logo: { width: 4, height: 1, data: image, extension: '.png' },
+          logo: { width: 4, height: 1, data: image, extension: '.jpg' },
         };
       });
     });
@@ -66,8 +66,8 @@ export class DOCXComponent {
       const image = evt.target.result.replace('data:', '').replace(/^.+,/, '');
       const report = await getDocxReport(this.template, () => {
         return {
-          texto: 'texto teste',
-          logo: { width: 4, height: 1, data: image, extension: '.png' },
+          texto: 'texto inserido',
+          logo: { width: 4, height: 1, data: image, extension: '.jpg' },
         };
       });
 
